@@ -1,5 +1,5 @@
 library(rjson)
-
+print("hi")
 # user data
 user_json_file = "~/Documents/spring17/cst463/project/yelp_dataset_challenge_round9/yelp_academic_dataset_user.json"
 dat = readLines(user_json_file, n=10000)
