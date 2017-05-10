@@ -41,6 +41,8 @@ business_data = function(business_json_file) {
   business_dat$name = unlist(business_dat$name)
   business_dat$stars = unlist(business_dat$stars)
   business_dat$review_count = unlist(business_dat$review_count)
+  
+  return (business_dat)
 }
 
 # pre-process checkin data
