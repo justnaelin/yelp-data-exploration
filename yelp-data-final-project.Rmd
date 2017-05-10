@@ -1,0 +1,58 @@
+---
+title: "Yelp-Dataset-Project"
+author: "Ana Perez, Clarissa Vazquez, Naelin Aquino"
+date: "May 10, 2017"
+output: html_document
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
+```
+
+```{r}
+#preparing the datasets
+source("process-data.r")
+user_data = user_data("/Users/anaperez/Documents/yelpDataSet/data/yelp_academic_dataset_user.json")
+business_data = business_data("/Users/anaperez/Documents/yelpDataSet/data/yelp_academic_dataset_business.json")
+checkin_data = checkin_data("/Users/anaperez/Documents/yelpDataSet/data/yelp_academic_dataset_checkin.json")
+review_data = review_data("/Users/anaperez/Documents/yelpDataSet/data/yelp_academic_dataset_review.json")
+tip_data = tip_data("/Users/anaperez/Documents/yelpDataSet/data/yelp_academic_dataset_tip.json")
+
+#scale user data
+
+#scale business data
+
+#scale checkin data
+
+#scale tip data
+```
+
+## User Data Exploration
+
+```{r}
+
+```
+
+## Business Data Exploration
+
+```{r}
+
+```
+
+## Checkin Data Exploration
+
+```{r}
+
+```
+
+## Reviews Data Exploration
+
+```{r}
+
+```
+
+## Tip Data Exploration
+
+
+
+
