@@ -12,11 +12,16 @@ knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
 ```{r}
 #preparing the datasets
 source("process-data.r")
-user_data = user_data("/Users/anaperez/Documents/yelpDataSet/data/yelp_academic_dataset_user.json")
-business_data = business_data("/Users/anaperez/Documents/yelpDataSet/data/yelp_academic_dataset_business.json")
-checkin_data = checkin_data("/Users/anaperez/Documents/yelpDataSet/data/yelp_academic_dataset_checkin.json")
-review_data = review_data("/Users/anaperez/Documents/yelpDataSet/data/yelp_academic_dataset_review.json")
-tip_data = tip_data("/Users/anaperez/Documents/yelpDataSet/data/yelp_academic_dataset_tip.json")
+
+fnames = c('business','checkin','review','tip','user')
+jfile = paste0('~/yelp_dataset_challenge_round9/yelp_academic_dataset_',fnames,'.json')
+
+business_dat = business_data(jfile[1])
+checkin_dat = checkin_data(jfile[2])
+review_dat = review_data(jfile[3])
+tip_dat = tip_data(jfile[4])
+user_dat = user_data(jfile[5])
+
 
 #scale user data
 
