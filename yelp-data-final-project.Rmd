@@ -35,14 +35,18 @@ user_dat = user_data(jfile[5])
 ## User Data Exploration
 
 ```{r}
-
+hist(user_dat$elite[user_dat$elite != 0], xlab = "years", ylab = "people", main="Elite Yelpers", col = "purple", xlim = c(2, 13))
 ```
+
+Pictured in this histogram is the amount of years a Yelp user has been an Elite Yelper. An Elite Yelper is someone who gives well-written reviews, high quality tips, have a detailed personal profile, an active voting and complimenting record, and a history of playing well with others. Out of 1029432 about 44246 yelpers are Elite. 
 
 ## Business Data Exploration
 
 ```{r}
-
+barplot(table(business_dat$state), horiz= TRUE, las = 1, xlim = c(0,50000), cex.names = 0.7, space = 1, col = "purple", main = "Amount of Business By State")
 ```
+
+Most of the business from this dataset come from Arizona, Nevada, and Ontario Canada.
 
 ## Checkin Data Exploration
 
