@@ -92,10 +92,8 @@ checkin_data = function(checkin_json_file) {
     
     temp_times[[length(temp_times) + 1]] = list(mon=mon_hours, tue=tue_hours, wed=wed_hours, 
                       thu=thu_hours, fri=fri_hours, sat=sat_hours, sun=sun_hours)
-    
   }
   checkin_dat$time = temp_times
-  
   return (checkin_dat)
 }
 
