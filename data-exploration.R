@@ -1,14 +1,14 @@
-source("process-data.R")
+source("/Users/naelin/Projects/YelpDataProject/yelp-data-exploration/process-data.R")
 library("rjson")
 
 ## Preprocess Yelp user data
 user_json_file = "/Users/naelin/Downloads/yelp_dataset_challenge_round9/yelp_academic_dataset_user.json"
-user_lines = readLines(user_json_file, n=10000)
+user_lines = readLines(user_json_file, n=50000)
 user_dat = lapply(user_lines, fromJSON)
 user_dat = do.call("rbind", user_dat)
 user_dat = data.frame(user_dat)
 user_dat$yelping_since = unlist(user_dat$yelping_since)
-user_dat$yelping_since = as.POSIXlt(user_dat$yelping_since, tz="US/Pacific", "%Y-%m-%d")
+user_dat$yelping_since = unlist(as.POSIXlt(user_dat$yelping_since, tz="US/Pacific", "%Y-%m-%d"))
 user_dat$user_id = unlist(user_dat$user_id)
 user_dat$name = unlist(user_dat$name)
 user_dat$review_count = unlist(user_dat$review_count)
@@ -30,8 +30,8 @@ user_dat$compliment_funny = unlist(user_dat$compliment_funny)
 user_dat$compliment_writer = unlist(user_dat$compliment_writer)
 
 ## Data exploration
-feat = c("funny", "cool", "fans")
-plot(user_dat[,feat])
+feat = c("funny", "useful", "cool", "fans", "average_stars")
+plot(user_dat[,])
 cor(user_dat[,feat])
 
 plot(average_stars ~ review_count + review_count, data=user_dat, pch=20, col="red", main="Star rating by review count")
@@ -51,15 +51,28 @@ legend("bottomright", c("1-star", "2-star", "3-star", "4-star", "5-star"), inset
 
 source("/Users/naelin/Downloads/lin-regr-util.R")
 set.seed(123)
-splits = split_data(user_dat, frac=c(7,3))
+splits = split_data(user_dat, frac=c(3,1))
 tr_dat = splits[[1]]
 te_dat = splits[[2]]
 library(e1071)
 
 #fit = naiveBayes(average_stars ~ review_count + useful + funny, data=tr_dat)
-#summary(fit)
-#predicts = predict(fit, te_dat)
-#conf_mtx = table(predicts, te_dat$average_stars)
+
+library(rpart)
+library(rpart.plot)
+fit = rpart(useful ~, data=tr_dat)
+# fit = lm(stars ~ city + review_count, data=tr_dat)
+
+summary(fit)
+
+prp(fit, extra=1, varlen=-10,
+    main="Regression tree for Yelp users",
+    box.col="tan")
+
+plot(user_dat$compliment_cool, user_dat$average_stars, xlab="Fans", ylab="Average Stars", main="Average star rating by number of fans")
+#abline(fit, lty=2)
+predicts = predict(fit, te_dat)
+#conf_mtx = table(round(predicts), round(te_dat$average_stars))
 #conf_mtx
 #succ_rate = mean(predicts == te_dat$average_stars)
 #paste0("The success rate is about ", round(succ_rate, 2) * 100, "%")
