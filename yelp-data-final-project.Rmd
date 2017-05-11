@@ -12,6 +12,8 @@ knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
 ```{r}
 #preparing the datasets
 source("process-data.r")
+library(FNN)
+library(class)
 
 fnames = c('business','checkin','review','tip','user')
 jfile = paste0('~/yelp_dataset_challenge_round9/yelp_academic_dataset_',fnames,'.json')
