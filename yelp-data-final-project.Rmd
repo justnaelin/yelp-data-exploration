@@ -15,21 +15,11 @@ source("process-data.r")
 
 fnames = c('business','checkin','review','tip','user')
 jfile = paste0('~/yelp_dataset_challenge_round9/yelp_academic_dataset_',fnames,'.json')
-
-business_dat = business_data(jfile[1])
-checkin_dat = checkin_data(jfile[2])
-review_dat = review_data(jfile[3])
-tip_dat = tip_data(jfile[4])
 user_dat = user_data(jfile[5])
 
 
 #scale user data
 
-#scale business data
-
-#scale checkin data
-
-#scale tip data
 ```
 
 ## User Data Exploration
@@ -39,29 +29,6 @@ hist(user_dat$elite[user_dat$elite != 0], xlab = "years", ylab = "people", main=
 ```
 
 Pictured in this histogram is the amount of years a Yelp user has been an Elite Yelper. An Elite Yelper is someone who gives well-written reviews, high quality tips, have a detailed personal profile, an active voting and complimenting record, and a history of playing well with others. Out of 1029432 about 44246 yelpers are Elite. 
-
-## Business Data Exploration
-
-```{r}
-barplot(table(business_dat$state), horiz= TRUE, las = 1, xlim = c(0,50000), cex.names = 0.7, space = 1, col = "purple", main = "Amount of Business By State")
-```
-
-Most of the business from this dataset come from Arizona, Nevada, and Ontario Canada.
-
-## Checkin Data Exploration
-
-```{r}
-
-```
-
-## Reviews Data Exploration
-
-```{r}
-
-```
-
-## Tip Data Exploration
-
 
 
 
