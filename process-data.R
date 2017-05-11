@@ -72,9 +72,11 @@ tip_data = function(tip_json_file) {
 
 # pre-process user data
 user_data = function(user_json_file) {
-  user_dat = stream_in(file(user_json_file), pagesize=100000)
+  user_dat = stream_in(file(user_json_file), pagesize=50000)
   user_dat$yelping_since = as.POSIXlt(user_dat$yelping_since, tz="US/Pacific", "%Y-%m-%d")
-  return (user_dat)
+  user_dat$elite = unlist(lapply(user_dat$elite, length))
+  user_dat$elite = ifelse(user_dat$elite == 1, 0, user_dat$elite)
+   return (user_dat)
 }
 
 
