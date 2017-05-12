@@ -13,6 +13,7 @@ knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
 source("process-data.r")
 library(FNN)
 library(class)
+source("lin-regr-util.R")
 
 jfile = paste0('~/yelp_dataset_challenge_round9/yelp_academic_dataset_user.json')
 user_dat = user_data(jfile)
@@ -65,6 +66,12 @@ The above graph shows that people who give more reviews tend to have a rating of
 
 ## Feature Selection
 ```{r}
+set.seed(123)
+splits = split_data(user_dat, frac=c(3,1))
+tr_dat = splits[[1]]
+te_dat = splits[[2]]
+```
+```{r}
 numeric_feat = c("review_count", "useful", "funny", "cool", "fans")
 best_features = NULL
 min_feature = NULL
@@ -96,7 +103,6 @@ unique(best_features)
 
 The above performs cross validation to sort out the 4 "best features" to predict the usefulness of a user.
 ## KNN Regression Model
-
 ```{r}
 # KNN CLASSIFICATION
 # number of training examples
