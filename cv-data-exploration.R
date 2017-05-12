@@ -227,7 +227,7 @@ knn_user_dat = user_dat[sample(1:nrow(user_dat)),]
 pca = prcomp(knn_user_dat[,rv], center=TRUE, scale.=TRUE)
 plot(pca, type="l")
 summary(pca)
-
+pca
 
 
 # number of training examples
@@ -249,14 +249,7 @@ predicts = knn(tr_dat, te_dat, tr_labels, k=3, prob=TRUE)
 table(actuals, predicts)
 mean(actuals==predicts)
 
-prob = attr(predicts, "prob")
-prob = ifelse(predicts=="1", prob, 1-prob)
-px1 <- knn_user_dat$cool
-px2 <- knn_user_dat$useful
-prob3 <- matrix(prob, length(px1), length(px2))
 plot(useful~cool, data=knn_user_dat, pch=20, col=ifelse(above_four==1, "coral", "cornflowerblue"))
-gd <- expand.grid(x=knn_user_dat$cool, y=knn_user_dat$useful)
-points(gd, pch=".", cex=1.2, col=ifelse(prob13>0.5, "coral", "cornflowerblue"))
 ############################################################################################
 
 
