@@ -13,14 +13,13 @@ knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
 source("process-data.r")
 library(FNN)
 library(class)
-source("lin-regr-util.R")
+source("/Users/anaperez/Downloads/lin-regr-util.R")
 
 jfile = paste0('~/yelp_dataset_challenge_round9/yelp_academic_dataset_user.json')
 user_dat = user_data(jfile)
-
-
+# randomize data
+user_dat = user_dat[sample(1:nrow(user_dat)),]
 #scale user data
-
 
 ```
 
@@ -37,11 +36,13 @@ Pictured in this histogram is the amount of years a Yelp user has been an Elite 
 feat = c("funny", "useful", "cool", "fans", "average_stars")
 plot(user_dat[,feat], col=rainbow(5))
 ```
+
 It seems the majority of the features yield around the same values (about 3.7) when looking at the plots against average_stars. Additionally the features, funny, useful, and cool all seem to be strongly correlated.
 
 ```{r}
 cor(user_dat[,feat])
 ```
+
 The correlation matrix demonstrates the strong correlations between the aforementioned features.
 
 ```{r}
@@ -60,6 +61,7 @@ points(five$review_count, five$average_stars, pch=16, col="purple")
 
 legend("bottomright", c("1-star", "2-star", "3-star", "4-star", "5-star"), inset=0.05, pch=16, col=c("red", "orange", "yellow", "blue", "purple"))
 ```
+
 The above graph shows that people who give more reviews tend to have a rating of 3.7. 
 
 ## Feature Selection
@@ -69,6 +71,8 @@ splits = split_data(user_dat, frac=c(3,1))
 tr_dat = splits[[1]]
 te_dat = splits[[2]]
 ```
+
+
 ```{r}
 numeric_feat = c("review_count", "useful", "funny", "cool", "fans")
 best_features = NULL
@@ -98,6 +102,7 @@ for(i in 1:4) {
 
 unique(best_features)
 ```
+
 The above performs cross validation to sort out the 4 "best features" to predict the usefulness of a user.
 
 ## Principle Component Analysis
@@ -118,7 +123,6 @@ plot(useful~cool, data=user_dat, pch=20, col=ifelse(above_four==1, "coral", "cor
 ```{r}
 # number of training examples
 tr_rows = 1:floor(nrow(user_dat)*.70)
-
 # feature vectors training and testing data
 fvs = user_dat[,feat]
 tr_dat = fvs[tr_rows,]
@@ -156,7 +160,9 @@ recall = conf_mtrx[2,2] / sum(conf_mtrx[2,])
 round(recall, 3)
 ```
 
+
 ## Learning Curve
 
 ```{r}
+
 ```
