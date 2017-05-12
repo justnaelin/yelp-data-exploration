@@ -22,6 +22,7 @@ user_dat = user_data(jfile[5])
 
 #scale user data
 
+
 ```
 
 ## User Data Exploration
@@ -32,5 +33,27 @@ hist(user_dat$elite[user_dat$elite != 0], xlab = "years", ylab = "people", main=
 
 Pictured in this histogram is the amount of years a Yelp user has been an Elite Yelper. An Elite Yelper is someone who gives well-written reviews, high quality tips, have a detailed personal profile, an active voting and complimenting record, and a history of playing well with others. Out of 1029432 about 44246 yelpers are Elite. 
 
+## KNN Regression Model
 
+```{r}
+# KNN REGRESSION
+#data split for training and testing
+tr_rows = 1:floor(nrow(user_dat)*.70)
+# features to be used
+features = c("useful", "review_count")
+# feature vectors training and testing data
+fvs = user_dat[,features]
+tr_dat = fvs[tr_rows,]
+te_dat = fvs[-tr_rows,]
+
+average_stars = user_dat[,"average_stars"]
+tr_average_stars = average_stars[tr_rows]
+te_average_stars = average_stars[-tr_rows]
+
+actuals = round(te_average_stars)
+predicts = knn.reg(tr_dat, te_dat, tr_average_stars, k=11)
+predicts$pred = round(predicts$pred)
+
+table(actuals, predicts$pred)
+```
 
