@@ -227,21 +227,41 @@ conf_mtx
 ############################################################################################
 # KNN CLASSIFICATION
 knn_user_dat = user_dat[sample(1:nrow(user_dat)),]
+
+pca = prcomp(knn_user_dat[,rv], center=TRUE, scale.=TRUE)
+plot(pca, type="l")
+summary(pca)
+
+predict(pca, newdata=knn_user_dat[,rv])
+
+library(devtools)
+install_github("ggbiplot", "vqv")
+
+library(ggbiplot)
+g <- ggbiplot(pca, obs.scale = 1, var.scale = 1, 
+              groups = knn_user_dat$above_four, ellipse = TRUE, 
+              circle = TRUE)
+g <- g + scale_color_discrete(name = '')
+g <- g + theme(legend.direction = 'horizontal', 
+               legend.position = 'top')
+print(g)
+
+
 # number of training examples
 tr_rows = 1:floor(nrow(knn_user_dat)*.70)
 # features to be used
-features = c("useful", "review_count")
+features = c("useful", "funny", "fans", "review_count")
 # feature vectors training and testing data
 fvs = knn_user_dat[,features]
 tr_dat = fvs[tr_rows,]
 te_dat = fvs[-tr_rows,]
 # labels for training and test data
-labels = knn_user_dat[,"above_three"]
+labels = knn_user_dat[,"above_four"]
 tr_labels = labels[tr_rows]
 te_labels = labels[-tr_rows]
 
 actuals = te_labels
-predicts = knn(tr_dat, te_dat, tr_labels, k=11, prob=TRUE)
+predicts = knn(tr_dat, te_dat, tr_labels, k=3, prob=TRUE)
 
 table(actuals, predicts)
 
