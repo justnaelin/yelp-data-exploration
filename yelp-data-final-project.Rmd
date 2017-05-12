@@ -36,8 +36,8 @@ Pictured in this histogram is the amount of years a Yelp user has been an Elite 
 ## KNN Regression Model
 
 ```{r}
-# KNN REGRESSION
-#data split for training and testing
+# KNN CLASSIFICATION
+# number of training examples
 tr_rows = 1:floor(nrow(user_dat)*.70)
 # features to be used
 features = c("useful", "review_count")
@@ -45,16 +45,18 @@ features = c("useful", "review_count")
 fvs = user_dat[,features]
 tr_dat = fvs[tr_rows,]
 te_dat = fvs[-tr_rows,]
+# labels for training and test data
+labels = user_dat[,"above_four"]
+tr_labels = labels[tr_rows]
+te_labels = labels[-tr_rows]
 
-average_stars = user_dat[,"average_stars"]
-tr_average_stars = average_stars[tr_rows]
-te_average_stars = average_stars[-tr_rows]
-
-actuals = round(te_average_stars)
-predicts = knn.reg(tr_dat, te_dat, tr_average_stars, k=11)
-predicts$pred = round(predicts$pred)
-predicted = predicts$pred
-#confusion matrix
-table(predicted, actuals)
+actuals = te_labels
+predicts = knn(tr_dat, te_dat, tr_labels, k=11, prob=TRUE)
+table(actuals, predicts)
+mean(actuals == predicts$pred)
 ```
 
+## Learning Curve
+
+```{r}
+```
