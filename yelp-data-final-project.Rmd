@@ -8,23 +8,21 @@ output: html_document
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
 ```
-
+## Preprocessing Data
 ```{r}
-#preparing the datasets
 source("process-data.r")
 library(FNN)
 library(class)
 
-fnames = c('business','checkin','review','tip','user')
-jfile = paste0('~/yelp_dataset_challenge_round9/yelp_academic_dataset_',fnames,'.json')
-user_dat = user_data(jfile[5])
+jfile = paste0('~/yelp_dataset_challenge_round9/yelp_academic_dataset_user.json')
+user_dat = user_data(jfile)
 
 
 #scale user data
 
 ```
 
-## User Data Exploration
+## Data Exploration
 
 ```{r}
 hist(user_dat$elite[user_dat$elite != 0], xlab = "years", ylab = "people", main="Elite Yelpers", col = "purple", xlim = c(2, 13))
@@ -32,5 +30,65 @@ hist(user_dat$elite[user_dat$elite != 0], xlab = "years", ylab = "people", main=
 
 Pictured in this histogram is the amount of years a Yelp user has been an Elite Yelper. An Elite Yelper is someone who gives well-written reviews, high quality tips, have a detailed personal profile, an active voting and complimenting record, and a history of playing well with others. Out of 1029432 about 44246 yelpers are Elite. 
 
+```{r}
+feat = c("funny", "useful", "cool", "fans", "average_stars")
+plot(user_dat[,feat], col=rainbow(5))
+```
+It seems the majority of the features yield around the same values (about 3.7) when looking at the plots against average_stars. Additionally the features, funny, useful, and cool all seem to be strongly correlated.
+
+```{r}
+cor(user_dat[,feat])
+```
+The correlation matrix demonstrates the strong correlations between the aforementioned features.
+
+```{r}
+plot(average_stars ~ review_count + review_count, data=user_dat, pch=20, col="red", main="Star rating by review count")
+
+one = user_dat[round(user_dat$average_stars)==1,]
+two = user_dat[round(user_dat$average_stars)==2,]
+three = user_dat[round(user_dat$average_stars)==3,]
+four = user_dat[round(user_dat$average_stars)==4,]
+five = user_dat[round(user_dat$average_stars)==5,]
+
+points(two$review_count, two$average_stars, pch=16, col="orange")
+points(three$review_count, three$average_stars, pch=16, col="yellow")
+points(four$review_count, four$average_stars, pch=16, col="blue")
+points(five$review_count, five$average_stars, pch=16, col="purple")
+
+legend("bottomright", c("1-star", "2-star", "3-star", "4-star", "5-star"), inset=0.05, pch=16, col=c("red", "orange", "yellow", "blue", "purple"))
+```
+The above graph shows that people who give more reviews tend to have a rating of 3.7. 
+
+## Feature Selection
+```{r}
+numeric_feat = c("review_count", "useful", "funny", "cool", "fans")
+best_features = NULL
+min_feature = NULL
+for(i in 1:4) {
+  
+  if(!is.null(best_features)) {
+    features = setdiff(numeric_feat, c("useful", "Trim", best_features))
+  } else {
+    features = setdiff(numeric_feat, "useful")
+  }
+  
+  min_rmse = 100000
+
+  for (feature in features) {
+    rmse = cross_validate_lm(tr_dat, "useful", feature)
+    
+    if(rmse < min_rmse) {
+      min_rmse = rmse
+      min_feature = feature
+    }
+    
+  }
+  best_features = c(best_features, min_feature)
+
+}
+
+unique(best_features)
+```
+The above performs cross validation to sort out the 4 "best features" to predict the usefulness of a user.
 
 
