@@ -13,7 +13,7 @@ knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
 source("process-data.r")
 library(FNN)
 library(class)
-source("lin-regr-util.R")
+source("/Users/anaperez/Downloads/lin-regr-util.R")
 
 jfile = paste0('~/yelp_dataset_challenge_round9/yelp_academic_dataset_user.json')
 user_dat = user_data(jfile)
@@ -71,6 +71,8 @@ splits = split_data(user_dat, frac=c(3,1))
 tr_dat = splits[[1]]
 te_dat = splits[[2]]
 ```
+
+
 ```{r}
 numeric_feat = c("review_count", "useful", "funny", "cool", "fans")
 best_features = NULL
@@ -102,13 +104,14 @@ unique(best_features)
 ```
 
 The above performs cross validation to sort out the 4 "best features" to predict the usefulness of a user.
-## KNN Regression Model
+
+## KNN Classification Model
 ```{r}
 # KNN CLASSIFICATION
 # number of training examples
 tr_rows = 1:floor(nrow(user_dat)*.70)
 # features to be used
-features = c("useful", "review_count")
+features = c("cool", "review_count", "funny", "fans", "useful")
 # feature vectors training and testing data
 fvs = user_dat[,features]
 tr_dat = fvs[tr_rows,]
@@ -119,7 +122,7 @@ tr_labels = labels[tr_rows]
 te_labels = labels[-tr_rows]
 
 actuals = te_labels
-predicts = knn(tr_dat, te_dat, tr_labels, k=11, prob=TRUE)
+predicts = knn(tr_dat, te_dat, tr_labels, k=3, prob=TRUE)
 table(actuals, predicts)
 mean(actuals == predicts$pred)
 ```
