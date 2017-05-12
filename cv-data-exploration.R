@@ -1,10 +1,6 @@
-library(rpart)
-library(rpart.plot)
-library(maptree)
 library(class)
 library(FNN)
-library(kknn)
-library(ElemStatLearn)
+
 source("~/Documents/spring17/cst463/project/yelp-data-exploration/process-data.R")
 source("~/Documents/spring17/cst463/code/lin-regr-util.R")
 
@@ -15,7 +11,7 @@ jfile = paste0('~/Documents/spring17/cst463/project/yelp_dataset_challenge_round
 user_dat = user_data(jfile[5])
 ############################################################################################
 # DATA EXPLORATION
-rv = c("review_count", "fans", "num_friends", "num_times_elite", "useful", "funny", "cool")
+rv = c("review_count", "fans", "friends", "elite", "useful", "funny", "cool")
 plot(user_dat[,rv], pch=20, col="red4")
 
 one = user_dat[round(user_dat$average_stars)==1,]
@@ -232,25 +228,12 @@ pca = prcomp(knn_user_dat[,rv], center=TRUE, scale.=TRUE)
 plot(pca, type="l")
 summary(pca)
 
-predict(pca, newdata=knn_user_dat[,rv])
-
-library(devtools)
-install_github("ggbiplot", "vqv")
-
-library(ggbiplot)
-g <- ggbiplot(pca, obs.scale = 1, var.scale = 1, 
-              groups = knn_user_dat$above_four, ellipse = TRUE, 
-              circle = TRUE)
-g <- g + scale_color_discrete(name = '')
-g <- g + theme(legend.direction = 'horizontal', 
-               legend.position = 'top')
-print(g)
 
 
 # number of training examples
 tr_rows = 1:floor(nrow(knn_user_dat)*.70)
 # features to be used
-features = c("useful", "funny", "fans", "review_count")
+features = c("useful", "funny", "fans", "review_count", "cool")
 # feature vectors training and testing data
 fvs = knn_user_dat[,features]
 tr_dat = fvs[tr_rows,]
@@ -264,18 +247,16 @@ actuals = te_labels
 predicts = knn(tr_dat, te_dat, tr_labels, k=3, prob=TRUE)
 
 table(actuals, predicts)
+mean(actuals==predicts)
 
-prob <- attr(predicts, "prob")
-prob <- ifelse(predicts==1, prob, 1-prob)
-px1 <- knn_user_dat$useful
-px2 <- knn_user_dat$review_count
-prob11 <- matrix(prob, length(px1), length(px2))
-par(mar=rep(2,4))
-contour(px1, px2, prob11, levels=0.5, labels="", xlab="", ylab="", main="11-nearest neighbour")
-points(x, col=ifelse(g==1, "coral", "cornflowerblue"))
-gd <- expand.grid(x=px1, y=px2)
-points(gd, pch=".", cex=1.2, col=ifelse(prob15>0.5, "coral", "cornflowerblue"))
-box()
+prob = attr(predicts, "prob")
+prob = ifelse(predicts=="1", prob, 1-prob)
+px1 <- knn_user_dat$cool
+px2 <- knn_user_dat$useful
+prob3 <- matrix(prob, length(px1), length(px2))
+plot(useful~cool, data=knn_user_dat, pch=20, col=ifelse(above_four==1, "coral", "cornflowerblue"))
+gd <- expand.grid(x=knn_user_dat$cool, y=knn_user_dat$useful)
+points(gd, pch=".", cex=1.2, col=ifelse(prob13>0.5, "coral", "cornflowerblue"))
 ############################################################################################
 
 
