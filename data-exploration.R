@@ -31,7 +31,7 @@ user_dat$compliment_writer = unlist(user_dat$compliment_writer)
 
 ## Data exploration
 feat = c("funny", "useful", "cool", "fans", "average_stars")
-plot(user_dat[,])
+plot(user_dat[,feat])
 cor(user_dat[,feat])
 
 plot(average_stars ~ review_count + review_count, data=user_dat, pch=20, col="red", main="Star rating by review count")
