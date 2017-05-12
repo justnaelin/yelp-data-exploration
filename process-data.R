@@ -73,11 +73,17 @@ tip_data = function(tip_json_file) {
 # pre-process user data
 user_data = function(user_json_file) {
   user_dat = stream_in(file(user_json_file), pagesize=50000)
+  user_dat = user_dat[sample(nrow(user_dat), 30000), ]
   user_dat$yelping_since = as.POSIXlt(user_dat$yelping_since, tz="US/Pacific", "%Y-%m-%d")
   user_dat$yelping_since = as.Date(user_dat$yelping_since)
   user_dat$elite = unlist(lapply(user_dat$elite, length))
   user_dat$elite = ifelse(user_dat$elite == 1, 0, user_dat$elite)
   user_dat = user_dat[sample(nrow(user_dat), 30000), ]
+  user_dat$above_four = ifelse(user_dat$average_stars >= 4, 1, 0)
+  user_dat$friends = unlist(lapply(user_dat$friends, length))
+  user_dat$average_stars = round(user_dat$average_stars)
+  rownames(user_dat) = user_dat$user_id
+  user_dat$user_id = NULL
   return (user_dat)
 }
 

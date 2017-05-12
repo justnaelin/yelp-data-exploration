@@ -20,15 +20,17 @@ user_dat = user_data(jfile)
 
 #scale user data
 
+
 ```
 
 ## Data Exploration
 
 ```{r}
-hist(user_dat$elite[user_dat$elite != 0], xlab = "years", ylab = "people", main="Elite Yelpers", col = "purple", xlim = c(2, 13))
+hist(user_dat$elite[user_dat$elite != 0], xlab = "years", ylab = "people", main="Elite Yelpers", col = "purple", xlim = c(2, 13), ylim = c(0,800))
 ```
 
-Pictured in this histogram is the amount of years a Yelp user has been an Elite Yelper. An Elite Yelper is someone who gives well-written reviews, high quality tips, have a detailed personal profile, an active voting and complimenting record, and a history of playing well with others. Out of 1029432 about 44246 yelpers are Elite. 
+Pictured in this histogram is the amount of years a Yelp user has been an Elite Yelper. An Elite Yelper is someone who gives well-written reviews, high quality tips, have a detailed personal profile, an active voting and complimenting record, and a history of playing well with others. Out of 30000 about 780 have been elite yelpers for 2 to 3 years.
+
 
 ```{r}
 feat = c("funny", "useful", "cool", "fans", "average_stars")
@@ -90,5 +92,31 @@ for(i in 1:4) {
 unique(best_features)
 ```
 The above performs cross validation to sort out the 4 "best features" to predict the usefulness of a user.
+```
+## KNN Regression Model
 
+```{r}
+# KNN CLASSIFICATION
+# number of training examples
+tr_rows = 1:floor(nrow(user_dat)*.70)
+# features to be used
+features = c("useful", "review_count")
+# feature vectors training and testing data
+fvs = user_dat[,features]
+tr_dat = fvs[tr_rows,]
+te_dat = fvs[-tr_rows,]
+# labels for training and test data
+labels = user_dat[,"above_four"]
+tr_labels = labels[tr_rows]
+te_labels = labels[-tr_rows]
 
+actuals = te_labels
+predicts = knn(tr_dat, te_dat, tr_labels, k=11, prob=TRUE)
+table(actuals, predicts)
+mean(actuals == predicts$pred)
+```
+
+## Learning Curve
+
+```{r}
+```
