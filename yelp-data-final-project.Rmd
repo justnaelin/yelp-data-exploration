@@ -1,21 +1,39 @@
 ---
-title: "Yelp-Dataset-Project"
+title: "Classifying Yelper's Star Ratings Using KNN"
 author: "Ana Perez, Clarissa Vazquez, Naelin Aquino"
 date: "May 10, 2017"
 output: html_document
 ---
+
+We will classify whether a yelper scores above or below a 4 star rating based on the user's profile data.
 
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(prompt=TRUE, comment="", echo=TRUE)
 ```
 ## Preprocessing Data
 ```{r}
-source("process-data.r")
 library(FNN)
 library(class)
-source("/Users/anaperez/Downloads/lin-regr-util.R")
+source("~/Documents/spring17/cst463/code/lin-regr-util.R")
 
-jfile = paste0('~/yelp_dataset_challenge_round9/yelp_academic_dataset_user.json')
+# pre-process user data
+user_data = function(user_json_file) {
+  user_dat = stream_in(file(user_json_file), pagesize=50000)
+  user_dat = user_dat[sample(nrow(user_dat), 30000), ]
+  user_dat$yelping_since = as.POSIXlt(user_dat$yelping_since, tz="US/Pacific", "%Y-%m-%d")
+  user_dat$yelping_since = as.Date(user_dat$yelping_since)
+  user_dat$elite = unlist(lapply(user_dat$elite, length))
+  user_dat$elite = ifelse(user_dat$elite == 1, 0, user_dat$elite)
+  user_dat = user_dat[sample(nrow(user_dat), 30000), ]
+  user_dat$above_four = ifelse(user_dat$average_stars >= 4, 1, 0)
+  user_dat$friends = unlist(lapply(user_dat$friends, length))
+  user_dat$average_stars = round(user_dat$average_stars)
+  rownames(user_dat) = user_dat$user_id
+  user_dat$user_id = NULL
+  return (user_dat)
+}
+
+jfile = "~/Documents/spring17/cst463/project/yelp_dataset_challenge_round9/yelp_academic_dataset_business.json"
 user_dat = user_data(jfile)
 # randomize data
 user_dat = user_dat[sample(1:nrow(user_dat)),]
@@ -23,13 +41,15 @@ user_dat = user_dat[sample(1:nrow(user_dat)),]
 
 ```
 
+The first step is to pre process the data. Here, we were interested in the amount of times a user was elite, the amount of friends a user had, and whether the user had an average rating above four or not. The reason we chose to see if the user scored above four was that the data was heavily skewed.
+
 ## Data Exploration
 
 ```{r}
 hist(user_dat$elite[user_dat$elite != 0], xlab = "years", ylab = "people", main="Elite Yelpers", col = "purple", xlim = c(2, 13), ylim = c(0,800))
 ```
 
-Pictured in this histogram is the amount of years a Yelp user has been an Elite Yelper. An Elite Yelper is someone who gives well-written reviews, high quality tips, have a detailed personal profile, an active voting and complimenting record, and a history of playing well with others. Out of 30000 about 780 have been elite yelpers for 2 to 3 years.
+Pictured in this histogram is the amount of years a Yelp user has been an Elite Yelper. An Elite Yelper is someone who gives well-written reviews, high quality tips, has a detailed personal profile, an active voting and complimenting record, and a history of playing well with others. Out of 30000 about 780 have been elite yelpers for 2 to 3 years.
 
 
 ```{r}
@@ -106,13 +126,14 @@ best_features
 
 The above performs cross validation to sort out the 4 "best features" to predict if a user will score above a rating of 4 stars.
 
-## Principle Component Analysis
 ```{r}
+# Principle Component Analysis
 feat = c("funny", "useful", "cool", "fans", "review_count", "elite")
 pca = prcomp(user_dat[,feat], center=TRUE, scale.=TRUE)
 plot(pca, type="l")
 pca
 ```
+
 From the principle component analysis summary and plot, we can see that the first 2 rotations have the highest variance. In addition we can see that the best features are cool and useful.
 
 ```{r}
@@ -122,20 +143,19 @@ plot(useful~cool, data=user_dat, pch=20, col=ifelse(above_four==1, "coral", "cor
 
 ## KNN Classification
 ```{r}
-# number of training examples
-tr_rows = 1:floor(nrow(user_dat)*.70)
 # feature vectors training and testing data
-fvs = user_dat[,feat]
-tr_dat = fvs[tr_rows,]
-te_dat = fvs[-tr_rows,]
+tr_dat = tr_dat[,feat]
+te_dat = te_dat[,feat]
 # labels for training and test data
 labels = user_dat[,"above_four"]
-tr_labels = labels[tr_rows]
-te_labels = labels[-tr_rows]
+tr_labels = splits[[1]]$above_four
+te_labels = splits[[2]]$above_four
 
 actuals = te_labels
 predicts = knn(tr_dat, te_dat, tr_labels, k=3, prob=TRUE)
 ```
+
+After creating and analyzing several models, KNN Classification gave the best results for the question that we are answering, which is predicting whether a user has above 4 star rating. 
 
 ## Assess the Model
 Confusion Matrix:
@@ -159,4 +179,38 @@ Recall:
 ```{r}
 recall = conf_mtrx[2,2] / sum(conf_mtrx[2,])
 round(recall, 3)
+```
+
+## Learning Curve
+
+```{r}
+te_errs = c()
+tr_errs = c()
+tr_sizes = seq(100, nrow(tr_dat), length.out=10)
+for (tr_size in tr_sizes) {
+  tr_dat1 = tr_dat[1:tr_size,]
+  te_dat1 = te_dat[1:tr_size,]
+  tr_actual = tr_labels[1:tr_size]
+  te_actual = te_labels[1:tr_size]
+  if(sum(is.na(te_dat1)) > 0) {
+    te_dat1 = te_dat1[-which(is.na(te_dat1)),] 
+    add = tr_size - nrow(te_dat1)
+    te_dat1 = rbind(te_dat1, te_dat1[sample(1:nrow(te_dat1), add, replace=TRUE),])
+    te_actual[which(is.na(te_actual))] = sample(0:1, 1)
+  }
+  tr_predicted = knn(tr_dat1, tr_dat1, tr_actual, k=3, prob=TRUE)
+  
+  # error on training set
+  err = sum(tr_actual != tr_predicted)/length(tr_predicted)
+  tr_errs = c(tr_errs, err)
+  
+  # error on test set
+  te_predicted = knn(tr_dat1, te_dat1, te_actual, k=3, prob=TRUE)
+  err = sum(te_actual != te_predicted)/length(te_predicted)
+  te_errs = c(te_errs, err)
+}
+
+plot(tr_errs ~ tr_sizes, type="l", col="green4", ylim=c(0, .5), xlab="Training Set Size", ylab="Errors", main="Learning Curve")
+lines(te_errs ~ tr_sizes, type="l", col="blue")
+legend(x="bottom", legend=c("training errors", "testing errors"), col=c("green4", "blue"), lwd=1)
 ```
