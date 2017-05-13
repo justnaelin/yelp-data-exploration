@@ -45,7 +45,7 @@ cor(user_dat[,feat])
 The correlation matrix demonstrates the strong correlations between the aforementioned features.
 
 ```{r}
-plot(average_stars ~ review_count + review_count, data=user_dat, pch=20, col="red", main="Star rating by review count")
+plot(average_stars ~ review_count + review_count, data=user_dat, pch=20, col="mediumpurple", main="Star rating by review count")
 
 one = user_dat[round(user_dat$average_stars)==1,]
 two = user_dat[round(user_dat$average_stars)==2,]
@@ -53,12 +53,12 @@ three = user_dat[round(user_dat$average_stars)==3,]
 four = user_dat[round(user_dat$average_stars)==4,]
 five = user_dat[round(user_dat$average_stars)==5,]
 
-points(two$review_count, two$average_stars, pch=16, col="orange")
-points(three$review_count, three$average_stars, pch=16, col="yellow")
-points(four$review_count, four$average_stars, pch=16, col="blue")
-points(five$review_count, five$average_stars, pch=16, col="purple")
+points(two$review_count, two$average_stars, pch=16, col="plum")
+points(three$review_count, three$average_stars, pch=16, col="mediumspringgreen")
+points(four$review_count, four$average_stars, pch=16, col="cornflowerblue")
+points(five$review_count, five$average_stars, pch=16, col="palevioletred")
 
-legend("bottomright", c("1-star", "2-star", "3-star", "4-star", "5-star"), inset=0.05, pch=16, col=c("red", "orange", "yellow", "blue", "purple"))
+legend("bottomright", c("1-star", "2-star", "3-star", "4-star", "5-star"), inset=0.05, pch=16, col=c("mediumpurple", "plum", "mediumspringgreen", "cornflowerblue", "palevioletred"))
 ```
 The above graph shows that people who give more reviews tend to have a rating of 3.7. 
 
@@ -70,21 +70,22 @@ tr_dat = splits[[1]]
 te_dat = splits[[2]]
 ```
 ```{r}
-numeric_feat = c("review_count", "useful", "funny", "cool", "fans")
+numeric_feat = c("review_count", "useful", "funny", "cool", "fans", "elite", "friends")
+numeric_feat = c(numeric_feat, names(user_dat)[grep("compliment", names(tr_dat))])
 best_features = NULL
 min_feature = NULL
 for(i in 1:4) {
   
   if(!is.null(best_features)) {
-    features = setdiff(numeric_feat, c("useful", "Trim", best_features))
+    features = setdiff(numeric_feat, c("above_four", best_features))
   } else {
-    features = setdiff(numeric_feat, "useful")
+    features = setdiff(numeric_feat, "above_four")
   }
   
   min_rmse = 100000
 
   for (feature in features) {
-    rmse = cross_validate_lm(tr_dat, "useful", feature)
+    rmse = cross_validate_lm(tr_dat, "above_four", feature)
     
     if(rmse < min_rmse) {
       min_rmse = rmse
@@ -96,9 +97,9 @@ for(i in 1:4) {
 
 }
 
-unique(best_features)
+best_features
 ```
-The above performs cross validation to sort out the 4 "best features" to predict the usefulness of a user.
+The above performs cross validation to sort out the 4 "best features" to predict if a user will score above a rating of 4 stars.
 
 ## Principle Component Analysis
 ```{r}
@@ -154,9 +155,4 @@ Recall:
 ```{r}
 recall = conf_mtrx[2,2] / sum(conf_mtrx[2,])
 round(recall, 3)
-```
-
-## Learning Curve
-
-```{r}
 ```
